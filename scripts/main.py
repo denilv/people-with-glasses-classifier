@@ -4,6 +4,7 @@ import sys
 import time
 from argparse import ArgumentParser
 
+import numpy as np
 import cv2
 import torch
 
@@ -31,19 +32,16 @@ class Predictor():
         model,
         device,
         th=0.5, 
-        shape=(120, 120),
         preprocessing_fn=preprocessing_fn,
     ):
         self.model = model
         self.device = device
         self.th = th
         self.activation = torch.sigmoid
-        self.shape = shape
 
     def predict(self, img):
-        crop = cv2.resize(img, self.shape)
-        crop = preprocessing_fn(crop)
-        tensor = torch.Tensor(crop).unsqueeze(0).to(self.device)
+        img = preprocessing_fn(img)
+        tensor = torch.Tensor(img).unsqueeze(0).to(self.device)
         with torch.no_grad():
             logit = self.model(tensor)
         prob = self.activation(logit)
@@ -55,6 +53,9 @@ if __name__=='__main__':
     device = 'cuda' if args.use_gpu else 'cpu'
     model = torch.jit.load(args.model, map_location=device)
     predictor = Predictor(model, device, th=args.threshold)
+    # dry run
+    predictor.predict(np.zeros((120, 120, 3)))
+    
     prediction_time = 0
     start = time.time()
     fnames = os.listdir(args.fld)
@@ -69,6 +70,7 @@ if __name__=='__main__':
                 continue
             top, bot, left, right = bbox
             crop = img[top: bot, left: right] / 255.
+            crop = cv2.resize(crop, (120, 120))
             prediction_start = time.time()
             prediction = predictor.predict(crop)
             prediction_time += time.time() - prediction_start
