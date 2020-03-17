@@ -37,7 +37,12 @@ __Augmentations__:
 * ShiftScaleRotate
 * Blur
 * JpegCompression  
-More details at: modules/comp_tools.py:37
+  
+More details at: [comp_tools.py](modules/comp_tools.py#37)  
+
+Training script: [train_classification.py](scripts/train_classification.py)  
+
+You also need __catalyst==20.3__ for training procedure.
 
 ### Model selection:
 In general, I considered finetuning of 3 different models:
@@ -51,7 +56,7 @@ MobileNetV2 checkpoint is about 19 Mb
 
 ### Model parameters compression
 
-Post training static quantization.  
+Post training static quantization [validation.ipynb](notebooks/validation.ipynb#Static-quantization)  
 CPU inference speed up: ~8.7 times (83.9 fps -> 728.53 fps)  
 Volume reductiuon: ~3.4 times (9.1 Mb -> 2.7 Mb)  
 
